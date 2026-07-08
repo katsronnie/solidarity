@@ -12,6 +12,7 @@ export const MONTH_SAVED = 6240;
 export const MONTH_TXNS = 18;
 export const CEILING = 500000;
 export const RATE = 8;
+export const SERVICE_FEE_RATE = 2; // % platform fee on withdrawals & hospital bill payments
 export const PCT = Math.round((BALANCE / CEILING) * 100);
 
 export const SAVINGS_BY_TYPE = [
@@ -74,4 +75,20 @@ export const WITHDRAW_REASONS = [
   "Medicines & prescriptions",
   "Lab tests & diagnostics",
   "Verified emergency",
+];
+
+/* Registered hospitals/clinics a user can search and pay directly */
+export const HOSPITALS = [
+  { id: 1, name: "Mulago National Referral Hospital", location: "Kampala", category: "Public", verified: true },
+  { id: 2, name: "Nsambya Hospital", location: "Kampala", category: "Private", verified: true },
+  { id: 3, name: "Mengo Hospital", location: "Kampala", category: "Private", verified: true },
+  { id: 4, name: "International Hospital Kampala (IHK)", location: "Kampala", category: "Private", verified: true },
+  { id: 5, name: "Case Medical Centre", location: "Kampala", category: "Private", verified: true },
+  { id: 6, name: "Rubaga Hospital", location: "Kampala", category: "Private", verified: true },
+  { id: 7, name: "Naguru General Hospital", location: "Kampala", category: "Private", verified: false },
+  { id: 8, name: "Jinja Regional Referral Hospital", location: "Jinja", category: "Public", verified: true },
+  { id: 9, name: "Mbarara Regional Referral Hospital", location: "Mbarara", category: "Public", verified: true },
+  { id: 10, name: "Gulu Regional Referral Hospital", location: "Gulu", category: "Public", verified: true },
+  { id: 11, name: "Lacor Hospital", location: "Gulu", category: "Private", verified: true },
+  { id: 12, name: "Kabale Regional Referral Hospital", location: "Kabale", category: "Public", verified: false },
 ];

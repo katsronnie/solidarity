@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, SectionLabel, PageHeader } from "./components/ui";
-import { BALANCE, WITHDRAW_REASONS, NOTIFICATIONS, fmt } from "./lib/data";
+import { BALANCE, WITHDRAW_REASONS, SERVICE_FEE_RATE, NOTIFICATIONS, fmt } from "./lib/data";
 
 export default function WithdrawPage({ onNavigate }) {
   const [amount, setAmount] = useState("");
@@ -9,11 +9,18 @@ export default function WithdrawPage({ onNavigate }) {
   const unread = NOTIFICATIONS.filter((n) => n.unread).length;
 
   const numericAmount = Number(amount.replace(/[^0-9]/g, "")) || 0;
-  const overLimit = numericAmount > BALANCE;
+  const fee = Math.round(numericAmount * (SERVICE_FEE_RATE / 100));
+  const total = numericAmount + fee;
+  const overLimit = total > BALANCE;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (numericAmount > 0 && !overLimit) setSubmitted(true);
+  };
+
+  const reset = () => {
+    setSubmitted(false);
+    setAmount("");
   };
 
   return (
@@ -34,10 +41,10 @@ export default function WithdrawPage({ onNavigate }) {
           </div>
           <p style={{ color: "#14231F", fontFamily: "Fraunces", fontWeight: 600, fontSize: 16 }}>Withdrawal requested</p>
           <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: "#5C6B64", fontFamily: "Manrope", fontWeight: 500 }}>
-            UGX {numericAmount.toLocaleString("en-UG")} for <strong>{reason}</strong> is under review. You'll get a notification once it's approved.
+            {fmt(numericAmount)} for <strong>{reason}</strong> is under review. A {fmt(fee)} service fee ({SERVICE_FEE_RATE}%) applies, so {fmt(total)} total will be deducted once approved.
           </p>
           <button
-            onClick={() => { setSubmitted(false); setAmount(""); }}
+            onClick={reset}
             className="mt-5 px-4 py-2 rounded-full text-[12px]"
             style={{ background: "#0E4B43", color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700 }}
           >
@@ -68,7 +75,7 @@ export default function WithdrawPage({ onNavigate }) {
               />
               {overLimit && (
                 <p className="mt-1 text-[11px]" style={{ color: "#E8604C", fontFamily: "Manrope", fontWeight: 600 }}>
-                  Amount exceeds your available balance.
+                  Amount plus the {SERVICE_FEE_RATE}% fee exceeds your available balance.
                 </p>
               )}
             </div>
@@ -88,6 +95,23 @@ export default function WithdrawPage({ onNavigate }) {
                 ))}
               </select>
             </div>
+
+            {numericAmount > 0 && (
+              <div className="rounded-[12px] p-3 flex flex-col gap-1.5" style={{ background: "#F6F3EC" }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11.5px]" style={{ color: "#8A9690", fontFamily: "Manrope", fontWeight: 600 }}>Amount</span>
+                  <span className="text-[12px]" style={{ color: "#14231F", fontFamily: "IBM Plex Mono", fontWeight: 600 }}>{fmt(numericAmount)}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11.5px]" style={{ color: "#8A9690", fontFamily: "Manrope", fontWeight: 600 }}>Service fee ({SERVICE_FEE_RATE}%)</span>
+                  <span className="text-[12px]" style={{ color: "#14231F", fontFamily: "IBM Plex Mono", fontWeight: 600 }}>{fmt(fee)}</span>
+                </div>
+                <div className="flex items-center justify-between pt-1.5" style={{ borderTop: "1px solid #E5DFD0" }}>
+                  <span className="text-[11.5px]" style={{ color: "#14231F", fontFamily: "Manrope", fontWeight: 700 }}>Total deducted</span>
+                  <span className="text-[13px]" style={{ color: "#0E4B43", fontFamily: "IBM Plex Mono", fontWeight: 700 }}>{fmt(total)}</span>
+                </div>
+              </div>
+            )}
 
             <button
               type="submit"

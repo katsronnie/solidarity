@@ -88,14 +88,25 @@ export default function HealthFundPage({ onNavigate }) {
           </div>
 
           <button
-            onClick={() => onNavigate && onNavigate("withdraw")}
+            onClick={() => onNavigate && onNavigate("pay-hospital")}
             className="rounded-[16px] px-4 py-3.5 flex items-center justify-between"
             style={{ background: "#0E4B43" }}
           >
             <span style={{ color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>
-              Request a withdrawal
+              Pay a hospital directly
             </span>
             <span style={{ color: "#F5B942", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>→</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate && onNavigate("withdraw")}
+            className="rounded-[16px] px-4 py-3.5 flex items-center justify-between"
+            style={{ background: "#FFFFFF", border: "1px solid #E5DFD0" }}
+          >
+            <span style={{ color: "#14231F", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>
+              Request a withdrawal
+            </span>
+            <span style={{ color: "#0E4B43", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>→</span>
           </button>
 
           <div className="rounded-[16px] px-4 py-3 flex items-start gap-3" style={{ background: "#FFF6E9", border: "1px solid #F1DCA8" }}>
