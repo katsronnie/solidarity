@@ -52,7 +52,7 @@ export default function AdminAuth({ onLoginSuccess }) {
           <div className="w-12 h-12 rounded-[14px] flex items-center justify-center mb-3" style={{ background: "#16294D" }}>
             <ShieldAlert size={22} color="#3B6FE0" />
           </div>
-          <p style={{ color: "#101828", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 19 }}>Afya Fund Admin</p>
+          <p style={{ color: "#101828", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 19 }}>SHP Admin</p>
           <span
             className="mt-2 px-2.5 py-1 rounded-full text-[10px]"
             style={{ background: "#FDEDEE", color: "#E5484D", fontFamily: "Manrope", fontWeight: 700 }}

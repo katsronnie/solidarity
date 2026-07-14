@@ -1,5 +1,5 @@
 import React from "react";
-import { LayoutGrid, Users, Receipt, Banknote, PieChart, Settings, LogOut, ShieldAlert } from "lucide-react";
+import { LayoutGrid, Users, Receipt, Banknote, Building2, PieChart, Settings, LogOut, ShieldAlert } from "lucide-react";
 import { ADMIN_FONT_IMPORT } from "./components/admin-ui";
 import { ADMIN_USER } from "./lib/adminData";
 
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { id: "users", label: "Users", icon: Users },
   { id: "transactions", label: "Transactions", icon: Receipt },
   { id: "payouts", label: "Payouts", icon: Banknote },
+  { id: "hospitals", label: "Hospitals", icon: Building2 },
   { id: "revenue", label: "Revenue", icon: PieChart },
   { id: "settings", label: "Settings", icon: Settings },
 ];
@@ -62,7 +63,7 @@ function Sidebar({ currentPage, onNavigate, onLogout, adminEmail }) {
             <ShieldAlert size={16} color="#3B6FE0" />
           </div>
           <div>
-            <p style={{ color: "#FFFFFF", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 14.5 }}>Afya Fund</p>
+            <p style={{ color: "#FFFFFF", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 14.5 }}>SHP</p>
             <p style={{ color: "#7C8CA8", fontFamily: "Manrope", fontWeight: 700, fontSize: 10 }}>ADMIN CONSOLE</p>
           </div>
         </div>

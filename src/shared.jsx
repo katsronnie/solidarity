@@ -51,7 +51,7 @@ function Sidebar({ currentPage, onNavigate, onLogout }) {
           <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#0E4B43" }}>
             <PiggyBank size={17} color="#F5B942" />
           </div>
-          <p style={{ color: "#FFFFFF", fontFamily: "Fraunces", fontWeight: 600, fontSize: 16 }}>Afya Fund</p>
+          <p style={{ color: "#FFFFFF", fontFamily: "Fraunces", fontWeight: 600, fontSize: 16 }}>SHP</p>
         </div>
 
         <nav className="flex flex-col gap-1">

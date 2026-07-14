@@ -197,7 +197,7 @@ export default function Auth({ onLoginSuccess }) {
               color: "#FFFFFF"
             }}
           >
-            Afya Fund
+            SHP
           </h1>
           <p className="text-white/60 text-sm mt-1" style={{ fontFamily: "Inter, sans-serif" }}>
             Health savings from every transaction
@@ -589,7 +589,8 @@ export default function Auth({ onLoginSuccess }) {
         .delay-1000 {
           animation-delay: 1s;
         }
-      `}</style>
+      `}</style>,
+      
     </div>
   );
 }

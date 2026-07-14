@@ -5,6 +5,7 @@ import AdminOverview from "./AdminOverview";
 import AdminUsers from "./AdminUsers";
 import AdminTransactions from "./AdminTransactions";
 import AdminPayouts from "./AdminPayouts";
+import AdminHospitals from "./AdminHospitals";
 import AdminRevenue from "./AdminRevenue";
 import AdminSettings from "./AdminSettings";
 
@@ -39,6 +40,7 @@ export default function AdminApp() {
       {currentPage === "users" && <AdminUsers />}
       {currentPage === "transactions" && <AdminTransactions />}
       {currentPage === "payouts" && <AdminPayouts />}
+      {currentPage === "hospitals" && <AdminHospitals />}
       {currentPage === "revenue" && <AdminRevenue />}
       {currentPage === "settings" && <AdminSettings />}
     </AdminLayout>
