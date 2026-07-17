@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ShieldAlert, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { ADMIN_FONT_IMPORT } from "./components/admin-ui";
+import { supabase } from "./lib/supabaseClient";
 
 export default function AdminAuth({ onLoginSuccess }) {
   const [step, setStep] = useState("credentials"); // "credentials" | "otp"
@@ -8,6 +9,7 @@ export default function AdminAuth({ onLoginSuccess }) {
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [resendIn, setResendIn] = useState(30);
 
   useEffect(() => {
@@ -18,7 +20,10 @@ export default function AdminAuth({ onLoginSuccess }) {
 
   const validEmail = /\S+@\S+\.\S+/.test(email);
 
-  const handleCredentials = (e) => {
+  // Step 1: verify the password is correct, then send a real email OTP.
+  // We sign out again right after the password check — the account only
+  // gets a real session once the OTP is verified in step 2.
+  const handleCredentials = async (e) => {
     e.preventDefault();
     if (!validEmail) {
       setError("Enter a valid email address.");
@@ -28,20 +33,96 @@ export default function AdminAuth({ onLoginSuccess }) {
       setError("Password must be at least 6 characters.");
       return;
     }
-    // TODO: replace with real admin authentication (email + password check)
+
+    setLoading(true);
     setError("");
+
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (signInError) {
+      setLoading(false);
+      setError("Incorrect email or password.");
+      return;
+    }
+
+    // Password was correct — confirm this account is actually an admin
+    // before going any further.
+    const { data: adminRow } = await supabase
+      .from("admin_users")
+      .select("id")
+      .eq("id", data.user.id)
+      .single();
+
+    if (!adminRow) {
+      await supabase.auth.signOut();
+      setLoading(false);
+      setError("This account isn't authorized for admin access.");
+      return;
+    }
+
+    // Drop the session for now — real login only completes after OTP.
+    await supabase.auth.signOut();
+
+    const { error: otpError } = await supabase.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false },
+    });
+
+    setLoading(false);
+
+    if (otpError) {
+      setError(otpError.message);
+      return;
+    }
+
     setResendIn(30);
     setStep("otp");
   };
 
-  const handleVerify = (e) => {
+  const handleResend = async () => {
+    setResendIn(30);
+    await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+  };
+
+  // Step 2: verify the emailed code, which creates the real session.
+  const handleVerify = async (e) => {
     e.preventDefault();
     if (otp.length !== 6) {
       setError("Enter the 6-digit code sent to your email.");
       return;
     }
-    // TODO: replace with real OTP verification against backend
-    onLoginSuccess(email);
+
+    setLoading(true);
+    setError("");
+
+    const { data, error: verifyError } = await supabase.auth.verifyOtp({
+      email,
+      token: otp,
+      type: "email",
+    });
+
+    if (verifyError) {
+      setLoading(false);
+      setError("That code is incorrect or expired.");
+      return;
+    }
+
+    // Double-check admin membership again on the fresh session (belt & braces).
+    const { data: adminRow } = await supabase
+      .from("admin_users")
+      .select("id, role, name")
+      .eq("id", data.user.id)
+      .single();
+
+    setLoading(false);
+
+    if (!adminRow) {
+      await supabase.auth.signOut();
+      setError("This account isn't authorized for admin access.");
+      return;
+    }
+
+    onLoginSuccess(email, adminRow.role, adminRow.name);
   };
 
   return (
@@ -52,7 +133,7 @@ export default function AdminAuth({ onLoginSuccess }) {
           <div className="w-12 h-12 rounded-[14px] flex items-center justify-center mb-3" style={{ background: "#16294D" }}>
             <ShieldAlert size={22} color="#3B6FE0" />
           </div>
-          <p style={{ color: "#101828", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 19 }}>SHP Admin</p>
+          <p style={{ color: "#101828", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 19 }}>Afya Fund Admin</p>
           <span
             className="mt-2 px-2.5 py-1 rounded-full text-[10px]"
             style={{ background: "#FDEDEE", color: "#E5484D", fontFamily: "Manrope", fontWeight: 700 }}
@@ -117,10 +198,11 @@ export default function AdminAuth({ onLoginSuccess }) {
 
             <button
               type="submit"
+              disabled={loading}
               className="mt-2 px-4 py-3 rounded-[12px] text-[13.5px]"
-              style={{ background: "#16294D", color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700 }}
+              style={{ background: "#16294D", color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700, opacity: loading ? 0.7 : 1 }}
             >
-              Continue
+              {loading ? "Checking..." : "Continue"}
             </button>
           </form>
         ) : (
@@ -152,24 +234,18 @@ export default function AdminAuth({ onLoginSuccess }) {
               )}
             </div>
 
-            <div className="rounded-[10px] px-3.5 py-2.5 flex items-center gap-2" style={{ background: "#FFF6E4", border: "1px solid #F0DBA3" }}>
-              <CheckCircle2 size={14} color="#B07C0E" className="shrink-0" />
-              <p className="text-[11px]" style={{ color: "#8A6100", fontFamily: "Manrope", fontWeight: 600 }}>
-                Demo mode — enter any 6 digits to continue.
-              </p>
-            </div>
-
             <button
               type="submit"
+              disabled={loading}
               className="mt-1 px-4 py-3 rounded-[12px] text-[13.5px]"
-              style={{ background: "#16294D", color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700 }}
+              style={{ background: "#16294D", color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700, opacity: loading ? 0.7 : 1 }}
             >
-              Verify & enter console
+              {loading ? "Verifying..." : "Verify & enter console"}
             </button>
 
             <button
               type="button"
-              onClick={() => setResendIn(30)}
+              onClick={handleResend}
               disabled={resendIn > 0}
               className="text-[11.5px] text-center"
               style={{ color: resendIn > 0 ? "#5B6472" : "#3B6FE0", fontFamily: "Manrope", fontWeight: 700 }}
