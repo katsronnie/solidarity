@@ -8,6 +8,7 @@ import SettingsPage from './SettingsPage'
 import TransactionsPage from './TransactionsPage'
 import ProfilePage from './ProfilePage'
 import NotificationsPage from './NotificationsPage'
+import GroupPage from './GroupPage'
 import { PageContainer } from './shared'
 import AdminApp from './AdminApp'
 
@@ -23,8 +24,6 @@ function App() {
     setIsAuthenticated(false)
   }
 
-  // Anything under /admin renders the separate admin console instead —
-  // different login, different pages, nothing shared with the user app below.
   const isAdminRoute =
     typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
 
@@ -76,6 +75,9 @@ function App() {
           )}
           {currentPage === 'notifications' && (
             <NotificationsPage onNavigate={handleNavigation} />
+          )}
+          {currentPage === 'group' && (
+            <GroupPage onNavigate={handleNavigation} />
           )}
         </PageContainer>
       )}

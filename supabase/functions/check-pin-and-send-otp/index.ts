@@ -1,46 +1,54 @@
-// Follow this setup guide to integrate the Deno language server with your editor:
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
+import { createClient } from "npm:@supabase/supabase-js@2";
+import bcrypt from "npm:bcryptjs@2.4.3";
 
-// Setup type definitions for built-in Supabase Runtime APIs
-import "@supabase/functions-js/edge-runtime.d.ts";
-import { withSupabase } from "@supabase/server";
-
-console.log("Hello from Functions!");
-
-// This endpoint uses 'publishable' | 'secret' access, apiKey is required.
-// Use publishable for Client-facing, key-validated endpoints
-// Use secret for Server-to-server, internal calls
-export default {
-  fetch: withSupabase({ auth: ["publishable", "secret"] }, async (req, ctx) => {
-    // Called by another service with a secret key
-    // ctx.supabaseAdmin bypasses RLS — use for privileged operations
-    /*
-    if (ctx.authMode === "secret") {
-      const { user_id } = await req.json();
-      const { data } = await ctx.supabaseAdmin.auth.admin.getUserById(user_id);
-
-      return Response.json({
-        email: data?.user?.email,
-      });
-    }
-    */
-
-    const { name } = await req.json();
-
-    return Response.json({
-      message: `Hello ${name}!`,
-    });
-  }),
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-/* To invoke locally:
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/check-pin-and-send-otp' \
-    --header 'apiKey: sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH' \
-    --data '{"name":"Functions"}'
+  try {
+    const { phone, pin } = await req.json();
+    if (!phone || !pin) {
+      return json({ valid: false, error: "Phone and PIN are required." }, 400);
+    }
 
-*/
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    // Elevated client — this is the ONLY way to read pin_hash before the
+    // user has a session, since RLS correctly blocks anonymous reads.
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    const { data: profile, error } = await adminClient
+      .from("profiles")
+      .select("id, pin_hash, status")
+      .eq("phone", phone)
+      .single();
+
+    if (error || !profile) {
+      return json({ valid: false, error: "No account found for this phone number." }, 404);
+    }
+    if (profile.status === "suspended") {
+      return json({ valid: false, error: "This account has been suspended." }, 403);
+    }
+
+    const pinMatches = await bcrypt.compare(pin, profile.pin_hash);
+    if (!pinMatches) {
+      return json({ valid: false, error: "Incorrect PIN." }, 401);
+    }
+
+    return json({ valid: true });
+  } catch (err) {
+    return json({ valid: false, error: "Something went wrong. Try again." }, 500);
+  }
+});

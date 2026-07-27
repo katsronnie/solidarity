@@ -43,6 +43,17 @@ export default function ProfilePage({ onNavigate }) {
           </div>
 
           <button
+            onClick={() => onNavigate && onNavigate("group")}
+            className="rounded-[16px] px-4 py-3.5 flex items-center justify-between"
+            style={{ background: "#0E4B43" }}
+          >
+            <span style={{ color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>
+              Choose your group
+            </span>
+            <span style={{ color: "#F5B942", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>→</span>
+          </button>
+
+          <button
             onClick={() => onNavigate && onNavigate("settings")}
             className="rounded-[16px] px-4 py-3.5 flex items-center justify-between"
             style={{ background: "#FFFFFF", border: "1px solid #E5DFD0" }}
@@ -58,7 +69,7 @@ export default function ProfilePage({ onNavigate }) {
             {[
               "Every airtime top-up, bundle, send, or withdrawal on MTN or Airtel is scanned automatically.",
               `${RATE}% of each transaction's value is set aside into your protected health fund — instantly.`,
-              "The balance can only be drawn for consultations, medicine, lab tests, or verified emergencies.",
+              "With a group: 70% stays in your personal wallet, 20% goes to your group, 10% to the global pool. Without one: 90% personal, 10% global pool.",
             ].map((t, i) => (
               <div key={i} className="flex items-start gap-3">
                 <span

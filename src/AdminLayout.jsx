@@ -1,10 +1,11 @@
 import React from "react";
-import { LayoutGrid, Users, Receipt, Banknote, Building2, PieChart, ShieldCheck, Settings, LogOut, ShieldAlert } from "lucide-react";
+import { LayoutGrid, Users, Users2, Receipt, Banknote, Building2, PieChart, ShieldCheck, Settings, LogOut, ShieldAlert } from "lucide-react";
 import { ADMIN_FONT_IMPORT } from "./components/admin-ui";
 
 const BASE_NAV_ITEMS = [
   { id: "overview", label: "Overview", icon: LayoutGrid },
   { id: "users", label: "Users", icon: Users },
+  { id: "groups", label: "Groups", icon: Users2 },
   { id: "transactions", label: "Transactions", icon: Receipt },
   { id: "payouts", label: "Payouts", icon: Banknote },
   { id: "hospitals", label: "Hospitals", icon: Building2 },
@@ -15,10 +16,9 @@ const BASE_NAV_ITEMS = [
 const MASTER_ONLY_ITEM = { id: "accounts", label: "Admins", icon: ShieldCheck };
 
 function getNavItems(adminRole) {
-  // "Admins" only shows for the master admin — staff never see it at all.
   if (adminRole === "master") {
     const items = [...BASE_NAV_ITEMS];
-    items.splice(items.length - 1, 0, MASTER_ONLY_ITEM); // insert before Settings
+    items.splice(items.length - 1, 0, MASTER_ONLY_ITEM);
     return items;
   }
   return BASE_NAV_ITEMS;
@@ -84,7 +84,7 @@ function Sidebar({ currentPage, onNavigate, onLogout, adminEmail, adminRole, adm
             <ShieldAlert size={16} color="#3B6FE0" />
           </div>
           <div>
-            <p style={{ color: "#FFFFFF", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 14.5 }}>SHP</p>
+            <p style={{ color: "#FFFFFF", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 14.5 }}>Yumatta</p>
             <p style={{ color: "#7C8CA8", fontFamily: "Manrope", fontWeight: 700, fontSize: 10 }}>ADMIN CONSOLE</p>
           </div>
         </div>

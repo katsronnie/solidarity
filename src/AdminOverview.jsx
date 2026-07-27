@@ -1,3 +1,5 @@
+import { supabase } from "./lib/supabaseClient";
+import { useEffect, useState } from "react";
 import React from "react";
 import { 
   Users, 
@@ -118,12 +120,21 @@ const BarChart = ({ data, maxValue }) => {
   );
 };
 
-// Main Component
+// Main Component - Moved useState and useEffect inside here
 export default function AdminOverview() {
+  // State is now declared inside the component
+  const [globalPool, setGlobalPool] = useState(0);
+  
   const maxV = Math.max(...MONTHLY_POOLED.map((d) => d.v));
   const mtnPct = Math.round((SYSTEM_STATS.activeNetworks.mtn / SYSTEM_STATS.totalUsers) * 100);
   const totalUsers = SYSTEM_STATS.totalUsers;
   const growthRate = Math.round((SYSTEM_STATS.totalUsers / (SYSTEM_STATS.totalUsers - 312)) * 100 - 100);
+
+  // useEffect is now declared inside the component
+  useEffect(() => {
+    supabase.from("global_pool").select("balance").eq("id", 1).single()
+      .then(({ data }) => setGlobalPool(data?.balance || 0));
+  }, []);
 
   return (
     <div className="min-h-screen" style={{ background: "#F8FAFB" }}>
@@ -193,6 +204,11 @@ export default function AdminOverview() {
           icon={Users}
           trend={1}
           color="#1F9D63"
+        />
+        <StatCard 
+          label="Global pool" 
+          value={fmt(globalPool)} 
+          subtext="from all users' 10%/1% share"
         />
         <StatCard 
           label="Total Pooled" 

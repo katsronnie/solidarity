@@ -434,3 +434,32 @@ entrypoint = "./functions/create-admin/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/create-admin/*.html" ]
+
+
+[functions.complete-registration]
+verify_jwt = false
+
+[functions.check-phone-exists]
+verify_jwt = false
+[functions.delete-admin]
+enabled = true
+verify_jwt = false
+import_map = "./functions/delete-admin/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/delete-admin/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/delete-admin/*.html" ]
+
+[functions.sms-hook]
+enabled = true
+verify_jwt = false
+import_map = "./functions/sms-hook/deno.json"
+# Uncomment to specify a custom file path to the entrypoint.
+# Supported file extensions are: .ts, .js, .mjs, .jsx, .tsx
+entrypoint = "./functions/sms-hook/index.ts"
+# Specifies static files to be bundled with the function. Supports glob patterns.
+# For example, if you want to serve static HTML pages in your function:
+# static_files = [ "./functions/sms-hook/*.html" ]
+
