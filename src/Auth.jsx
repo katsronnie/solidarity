@@ -231,7 +231,7 @@ export default function Auth({ onLoginSuccess }) {
             className="mx-auto mb-4"
             style={{ maxWidth: 220, height: "auto" }}
           />
-          <p className="text-white/60 text-sm mt-1">Health savings from every transaction</p>
+          <p className="text-white/60 text-sm mt-1">Start Small, Stand Strong</p>
         </div>
 
         <div className="rounded-3xl p-8 backdrop-blur-xl" style={{ background: "rgba(255, 255, 255, 0.06)", border: "1px solid rgba(255, 255, 255, 0.08)", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)" }}>

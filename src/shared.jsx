@@ -1,11 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Home, Clock, PiggyBank, Bell, User, Settings, LogOut } from "lucide-react";
-import { USER } from "./lib/data";
+import { supabase } from "./lib/supabaseClient";
 
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');`;
 
-/* Primary nav — mirrors dashboard/transactions/health-fund/notifications/profile
-   ids already used in App.jsx's currentPage state. */
 const NAV_ITEMS = [
   { id: "dashboard", label: "Home", icon: Home },
   { id: "transactions", label: "Activity", icon: Clock },
@@ -19,8 +17,7 @@ const NAV_ITEMS = [
  * Props: currentPage, onNavigate, onLogout, hideSidebar, children
  *
  * Note: `hideSidebar` is accepted for backward compatibility but ignored —
- * in the new design the nav (sidebar on desktop / bottom bar on mobile) is
- * always present so navigation is consistent across every page.
+ * the nav (sidebar on desktop / bottom bar on mobile) is always present.
  */
 export function PageContainer({ currentPage, onNavigate, onLogout, children }) {
   return (
@@ -40,18 +37,39 @@ export function PageContainer({ currentPage, onNavigate, onLogout, children }) {
   );
 }
 
+function initials(name) {
+  if (!name) return "";
+  const parts = name.trim().split(/\s+/);
+  return parts.slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
+}
+
 function Sidebar({ currentPage, onNavigate, onLogout }) {
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("name, network")
+        .eq("id", user.id)
+        .single();
+      if (data) setProfile(data);
+    };
+    load();
+  }, []);
+
+  const networkLabel = profile?.network === "mtn" ? "MTN" : profile?.network === "airtel" ? "Airtel" : "";
+
   return (
     <aside
       className="hidden md:flex fixed left-0 top-0 h-screen w-60 flex-col justify-between px-4 py-6 z-30"
       style={{ background: "#14231F" }}
     >
       <div>
-        <div className="flex items-center gap-2.5 px-2 mb-8">
-          <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#0E4B43" }}>
-            <PiggyBank size={17} color="#F5B942" />
-          </div>
-          <p style={{ color: "#FFFFFF", fontFamily: "Fraunces", fontWeight: 600, fontSize: 16 }}>Yumatta</p>
+        <div className="px-2 mb-8">
+          <img src="/white.png" alt="Yumatta" style={{ maxWidth: 140, height: "auto" }} />
         </div>
 
         <nav className="flex flex-col gap-1">
@@ -89,11 +107,15 @@ function Sidebar({ currentPage, onNavigate, onLogout }) {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3 px-3 py-3 rounded-[14px]" style={{ background: "#1B2A25" }}>
           <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-[12px]" style={{ background: "#0E4B43", color: "#F5B942", fontFamily: "Fraunces", fontWeight: 600 }}>
-            NA
+            {initials(profile?.name) || "…"}
           </div>
           <div className="min-w-0">
-            <p className="truncate" style={{ color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700, fontSize: 12.5 }}>{USER.name}</p>
-            <p className="truncate" style={{ color: "#3F8F7F", fontFamily: "Manrope", fontWeight: 600, fontSize: 11 }}>{USER.network}</p>
+            <p className="truncate" style={{ color: "#FFFFFF", fontFamily: "Manrope", fontWeight: 700, fontSize: 12.5 }}>
+              {profile?.name || "Loading..."}
+            </p>
+            <p className="truncate" style={{ color: "#3F8F7F", fontFamily: "Manrope", fontWeight: 600, fontSize: 11 }}>
+              {networkLabel}
+            </p>
           </div>
         </div>
         <button

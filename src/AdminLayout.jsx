@@ -79,14 +79,9 @@ function Sidebar({ currentPage, onNavigate, onLogout, adminEmail, adminRole, adm
       style={{ background: "#0D1526" }}
     >
       <div>
-        <div className="flex items-center gap-2.5 px-2 mb-2">
-          <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style={{ background: "#16294D" }}>
-            <ShieldAlert size={16} color="#3B6FE0" />
-          </div>
-          <div>
-            <p style={{ color: "#FFFFFF", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 14.5 }}>Yumatta</p>
-            <p style={{ color: "#7C8CA8", fontFamily: "Manrope", fontWeight: 700, fontSize: 10 }}>ADMIN CONSOLE</p>
-          </div>
+        <div className="px-2 mb-2">
+          <img src="/dark.png" alt="Yumatta" style={{ maxWidth: 130, height: "auto" }} />
+          <p style={{ color: "#7C8CA8", fontFamily: "Manrope", fontWeight: 700, fontSize: 10, marginTop: 6 }}>ADMIN CONSOLE</p>
         </div>
 
         <nav className="flex flex-col gap-1 mt-6">

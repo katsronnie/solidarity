@@ -1,19 +1,80 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, SectionLabel, PageHeader } from "./components/ui";
-import { USER, RATE, CEILING, NOTIFICATIONS, fmt } from "./lib/data";
+import { supabase } from "./lib/supabaseClient";
+
+const fmt = (n) => "UGX " + Number(n || 0).toLocaleString("en-UG");
+
+function initials(name) {
+  if (!name) return "?";
+  const parts = name.trim().split(/\s+/);
+  return parts.slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
+}
+
+function maskPhone(phone) {
+  // stored as "256759452215" (no plus) -> "+256 759 •••• 215"
+  if (!phone) return "—";
+  const cc = phone.slice(0, 3);
+  const p1 = phone.slice(3, 6);
+  const last = phone.slice(-3);
+  return `+${cc} ${p1} •••• ${last}`;
+}
 
 export default function ProfilePage({ onNavigate }) {
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState(null);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setError("Not signed in."); setLoading(false); return; }
+
+      const { data, error: profileError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) { setError(profileError.message); setLoading(false); return; }
+
+      setProfile(data);
+      setLoading(false);
+    };
+    load();
+  }, []);
+
+  if (loading) {
+    return (
+      <div>
+        <PageHeader title="Profile" onNavigate={onNavigate} />
+        <p className="text-[12px]" style={{ color: "#8A9690", fontFamily: "Manrope" }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div>
+        <PageHeader title="Profile" onNavigate={onNavigate} />
+        <p className="text-[12px]" style={{ color: "#E8604C", fontFamily: "Manrope" }}>Couldn't load your profile{error ? `: ${error}` : "."}</p>
+      </div>
+    );
+  }
+
+  const effectiveRate = Math.round(profile.deduction_rate * profile.multiplier);
+  const networkLabel = profile.network === "mtn" ? "MTN MoMo" : "Airtel Money";
+
   const rows = [
-    { label: "Linked line", value: "MTN MoMo · •••• 214" },
-    { label: "Deduction rate", value: `${RATE}% per transaction` },
-    { label: "Fund ceiling", value: fmt(CEILING) },
-    { label: "Network", value: "MTN & Airtel" },
+    { label: "Linked line", value: `${networkLabel} · ${maskPhone(profile.phone)}` },
+    { label: "Deduction rate", value: `${effectiveRate}% per transaction` },
+    { label: "Fund ceiling", value: fmt(profile.ceiling) },
+    { label: "Network", value: profile.network === "mtn" ? "MTN" : "Airtel" },
   ];
-  const unread = NOTIFICATIONS.filter((n) => n.unread).length;
 
   return (
     <div>
-      <PageHeader title="Profile" unreadCount={unread} onNavigate={onNavigate} />
+      <PageHeader title="Profile" onNavigate={onNavigate} />
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="flex flex-col gap-6">
@@ -22,11 +83,11 @@ export default function ProfilePage({ onNavigate }) {
               className="w-14 h-14 rounded-full flex items-center justify-center text-[18px]"
               style={{ background: "#0E4B43", color: "#F5B942", fontFamily: "Fraunces", fontWeight: 600 }}
             >
-              NA
+              {initials(profile.name)}
             </div>
             <div>
-              <p className="text-[15px]" style={{ color: "#14231F", fontFamily: "Fraunces", fontWeight: 600 }}>{USER.name}</p>
-              <p className="text-[11.5px] mt-0.5" style={{ color: "#3F8F7F", fontFamily: "Manrope", fontWeight: 700 }}>{USER.network}</p>
+              <p className="text-[15px]" style={{ color: "#14231F", fontFamily: "Fraunces", fontWeight: 600 }}>{profile.name}</p>
+              <p className="text-[11.5px] mt-0.5" style={{ color: "#3F8F7F", fontFamily: "Manrope", fontWeight: 700 }}>{networkLabel} linked</p>
             </div>
           </Card>
 
@@ -68,7 +129,7 @@ export default function ProfilePage({ onNavigate }) {
           <Card className="p-4 flex flex-col gap-3">
             {[
               "Every airtime top-up, bundle, send, or withdrawal on MTN or Airtel is scanned automatically.",
-              `${RATE}% of each transaction's value is set aside into your protected health fund — instantly.`,
+              `${effectiveRate}% of each transaction's value is set aside into your protected health fund — instantly.`,
               "With a group: 70% stays in your personal wallet, 20% goes to your group, 10% to the global pool. Without one: 90% personal, 10% global pool.",
             ].map((t, i) => (
               <div key={i} className="flex items-start gap-3">

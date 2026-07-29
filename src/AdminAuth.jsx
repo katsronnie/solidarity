@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ShieldAlert, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { ADMIN_FONT_IMPORT } from "./components/admin-ui";
 import { supabase } from "./lib/supabaseClient";
 
@@ -130,12 +130,14 @@ export default function AdminAuth({ onLoginSuccess }) {
       <style>{ADMIN_FONT_IMPORT}</style>
       <div className="w-full max-w-sm rounded-[20px] p-8" style={{ background: "#FFFFFF", border: "1px solid #E4E7EC" }}>
         <div className="flex flex-col items-center mb-6">
-          <div className="w-12 h-12 rounded-[14px] flex items-center justify-center mb-3" style={{ background: "#16294D" }}>
-            <ShieldAlert size={22} color="#3B6FE0" />
-          </div>
-          <p style={{ color: "#101828", fontFamily: "Space Grotesk", fontWeight: 600, fontSize: 19 }}>Yumatta Admin</p>
+          <img
+            src="/dark.png"
+            alt="Yumatta"
+            className="mb-3"
+            style={{ maxWidth: 180, height: "auto" }}
+          />
           <span
-            className="mt-2 px-2.5 py-1 rounded-full text-[10px]"
+            className="mt-1 px-2.5 py-1 rounded-full text-[10px]"
             style={{ background: "#FDEDEE", color: "#E5484D", fontFamily: "Manrope", fontWeight: 700 }}
           >
             Authorized personnel only
