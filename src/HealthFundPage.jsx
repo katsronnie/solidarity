@@ -1,7 +1,7 @@
 import React from "react";
 import { Info } from "lucide-react";
 import { Card, SectionLabel, PageHeader } from "./components/ui";
-import { ALLOCATION, SAVINGS_BY_TYPE, RATE, NOTIFICATIONS, fmt } from "./lib/data";
+import { ALLOCATION, SAVINGS_BY_TYPE, NOTIFICATIONS, fmt } from "./lib/data";
 
 export default function HealthFundPage({ onNavigate }) {
   const total = ALLOCATION.reduce((s, a) => s + a.value, 0);
@@ -104,7 +104,7 @@ export default function HealthFundPage({ onNavigate }) {
             style={{ background: "#FFFFFF", border: "1px solid #E5DFD0" }}
           >
             <span style={{ color: "#14231F", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>
-              Request a withdrawal
+              Withdraw from your savings
             </span>
             <span style={{ color: "#0E4B43", fontFamily: "Manrope", fontWeight: 700, fontSize: 13 }}>→</span>
           </button>
@@ -112,7 +112,10 @@ export default function HealthFundPage({ onNavigate }) {
           <div className="rounded-[16px] px-4 py-3 flex items-start gap-3" style={{ background: "#FFF6E9", border: "1px solid #F1DCA8" }}>
             <Info size={16} color="#B57A17" className="mt-0.5 shrink-0" />
             <p className="text-[11.5px] leading-snug" style={{ color: "#7A5615", fontFamily: "Manrope", fontWeight: 600 }}>
-              Every transaction across MTN and Airtel — airtime, data, sending, withdrawing — sets aside {RATE}% automatically into this fund. Nothing to remember, nothing to top up.
+              Small transactions (up to UGX 10,000) save a flat UGX 200. Mid-range (10k–50k) save 2%.
+              Larger transactions cap at UGX 1,000. A UGX 20 platform fee applies per save — paying a
+              hospital directly carries no extra charge to you; Yumatta's 1% settlement fee comes from
+              the clinic's side, not yours.
             </p>
           </div>
         </div>

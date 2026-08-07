@@ -172,7 +172,7 @@ const BarChart = ({ data, maxValue }) => {
   );
 };
 
-export default function YumattaDashboard({ onNavigate }) {
+export default function ShpDashboard({ onNavigate }) {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [profile, setProfile] = useState(null);
@@ -232,7 +232,6 @@ export default function YumattaDashboard({ onNavigate }) {
   const balance = profile.balance;
   const ceiling = profile.ceiling;
   const pct = ceiling > 0 ? Math.round((balance / ceiling) * 100) : 0;
-  const effectiveRate = Math.round(profile.deduction_rate * profile.multiplier);
   const inRecovery = Number(profile.debt_balance) > 0;
 
   const now = new Date();
@@ -309,8 +308,8 @@ export default function YumattaDashboard({ onNavigate }) {
               <div className="w-full mt-5 grid grid-cols-2 gap-2.5 relative z-10">
                 <StatCard label="Goal" value={fmt(ceiling)} subtext={`${pct}% achieved`} color="#3F8F7F" icon={Target} trend={1} variant="compact" />
                 <StatCard
-                  label="Auto-Save" value={`${effectiveRate}%`}
-                  subtext={inRecovery ? `recovery · owes ${fmt(profile.debt_balance)}` : "per transaction"}
+                  label="Auto-Save" value="UGX 200–1,000"
+                  subtext={inRecovery ? `recovery · ${profile.multiplier}x boost · owes ${fmt(profile.debt_balance)}` : "tiered per transaction"}
                   color={inRecovery ? "#E8A33D" : undefined}
                   icon={Zap} variant="compact"
                 />

@@ -62,12 +62,12 @@ export default function ProfilePage({ onNavigate }) {
     );
   }
 
-  const effectiveRate = Math.round(profile.deduction_rate * profile.multiplier);
+  const inRecovery = Number(profile.debt_balance) > 0;
   const networkLabel = profile.network === "mtn" ? "MTN MoMo" : "Airtel Money";
 
   const rows = [
     { label: "Linked line", value: `${networkLabel} · ${maskPhone(profile.phone)}` },
-    { label: "Deduction rate", value: `${effectiveRate}% per transaction` },
+    { label: "Contribution", value: inRecovery ? `UGX 200–1,000 · ${profile.multiplier}x recovery` : "UGX 200–1,000 (tiered)" },
     { label: "Fund ceiling", value: fmt(profile.ceiling) },
     { label: "Network", value: profile.network === "mtn" ? "MTN" : "Airtel" },
   ];
@@ -128,8 +128,8 @@ export default function ProfilePage({ onNavigate }) {
           <SectionLabel>How it works</SectionLabel>
           <Card className="p-4 flex flex-col gap-3">
             {[
-              "Every airtime top-up, bundle, send, or withdrawal on MTN or Airtel is scanned automatically.",
-              `${effectiveRate}% of each transaction's value is set aside into your protected health fund — instantly.`,
+              "Every airtime top-up, bundle, send, or MoMo withdrawal is scanned automatically.",
+              "Small transactions save a flat UGX 200. Mid-range (10k–50k) save 2%. Larger ones cap at UGX 1,000 — a UGX 20 platform fee applies to each save.",
               "With a group: 70% stays in your personal wallet, 20% goes to your group, 10% to the global pool. Without one: 90% personal, 10% global pool.",
             ].map((t, i) => (
               <div key={i} className="flex items-start gap-3">

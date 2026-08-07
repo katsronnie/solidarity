@@ -85,7 +85,7 @@ export default function SettingsPage({ onNavigate }) {
     );
   }
 
-  const effectiveRate = Math.round(profile.deduction_rate * profile.multiplier);
+  const inRecovery = Number(profile.debt_balance) > 0;
   const networkLabel = profile.network === "mtn" ? "MTN" : "Airtel";
 
   return (
@@ -96,7 +96,8 @@ export default function SettingsPage({ onNavigate }) {
         <div>
           <SectionLabel>Fund settings</SectionLabel>
           <Card className="divide-y" style={{ borderColor: "#E5DFD0" }}>
-            <Row label="Deduction rate" value={`${effectiveRate}% per transaction`} />
+            <Row label="Contribution" value={inRecovery ? `UGX 200–1,000 · ${profile.multiplier}x recovery` : "UGX 200–1,000 (tiered)"} />
+            <Row label="Platform fee" value="UGX 20 per save" />
             <Row label="Fund ceiling" value={fmt(profile.ceiling)} />
             <Row label="Linked network" value={networkLabel} />
           </Card>

@@ -11,9 +11,33 @@ export const BALANCE = 87420;
 export const MONTH_SAVED = 6240;
 export const MONTH_TXNS = 18;
 export const CEILING = 500000;
-export const RATE = 8;
-export const SERVICE_FEE_RATE = 2; // % platform fee on withdrawals & hospital bill payments
-export const PCT = Math.round((BALANCE / CEILING) * 100);
+
+/* ------------------------------------------------------------
+   Tiered contribution formula (replaces the old flat 8% + 2%)
+   ------------------------------------------------------------
+   amount <= 10,000        -> flat 200
+   10,000 < amount <= 50k  -> 2% of amount
+   amount > 50,000         -> flat 1,000
+   Then a flat UGX 20 platform fee is taken from every contribution.
+   Hospital payments carry a separate 1% settlement fee charged to
+   the clinic, not the user.
+   ------------------------------------------------------------ */
+export const CONTRIBUTION_MIN = 200;
+export const CONTRIBUTION_MAX = 1000;
+export const CONTRIBUTION_PCT = 2; // for the 10k-50k band
+export const CONTRIBUTION_LOW_THRESHOLD = 10000;
+export const CONTRIBUTION_HIGH_THRESHOLD = 50000;
+export const PLATFORM_FEE = 20; // UGX, flat, per save event
+export const SETTLEMENT_FEE_RATE = 1; // % of a hospital payment, charged to the clinic
+
+export function estimateContribution(amount) {
+  let gross;
+  if (amount <= CONTRIBUTION_LOW_THRESHOLD) gross = CONTRIBUTION_MIN;
+  else if (amount <= CONTRIBUTION_HIGH_THRESHOLD) gross = Math.round(amount * (CONTRIBUTION_PCT / 100));
+  else gross = CONTRIBUTION_MAX;
+  const net = Math.max(gross - PLATFORM_FEE, 0);
+  return { gross, platformFee: PLATFORM_FEE, net };
+}
 
 export const SAVINGS_BY_TYPE = [
   { label: "Send money", pct: 45, color: "#0E4B43" },
@@ -35,17 +59,17 @@ export const ALLOCATION = [
 ];
 
 export const TRANSACTIONS = [
-  { id: 1, label: "Airtime — MTN", time: "Today, 09:14 AM", amount: 10000, saved: 800, type: "airtime", icon: Smartphone },
-  { id: 2, label: "Send money — John Mukasa", time: "Today, 07:52 AM", amount: 50000, saved: 4000, type: "send", icon: Send },
-  { id: 3, label: "Data bundle — 1GB", time: "Yesterday, 8:30 PM", amount: 5000, saved: 400, type: "data", icon: Wifi },
-  { id: 4, label: "Send money — Clinic fees", time: "Yesterday, 2:15 PM", amount: 30000, saved: 2400, type: "send", icon: Send },
-  { id: 5, label: "Airtime — Airtel", time: "Mon, 11:40 AM", amount: 2000, saved: 160, type: "airtime", icon: Smartphone },
+  { id: 1, label: "Airtime — MTN", time: "Today, 09:14 AM", amount: 10000, saved: 180, type: "airtime", icon: Smartphone },
+  { id: 2, label: "Send money — John Mukasa", time: "Today, 07:52 AM", amount: 50000, saved: 980, type: "send", icon: Send },
+  { id: 3, label: "Data bundle — 1GB", time: "Yesterday, 8:30 PM", amount: 5000, saved: 180, type: "data", icon: Wifi },
+  { id: 4, label: "Send money — Clinic fees", time: "Yesterday, 2:15 PM", amount: 30000, saved: 580, type: "send", icon: Send },
+  { id: 5, label: "Airtime — Airtel", time: "Mon, 11:40 AM", amount: 2000, saved: 180, type: "airtime", icon: Smartphone },
 ];
 
 export const NOTIFICATIONS = [
   {
     id: 1, unread: true, icon: PiggyBank, color: "#0E4B43",
-    title: "UGX 4,000 added to your health fund",
+    title: "UGX 980 added to your health fund",
     body: "From your send-money transaction to John Mukasa.",
     time: "Today, 07:52 AM",
   },
@@ -69,7 +93,6 @@ export const NOTIFICATIONS = [
   },
 ];
 
-/* Categories eligible for withdrawal, mirrors the Fund allocation */
 export const WITHDRAW_REASONS = [
   "Consultation & checkups",
   "Medicines & prescriptions",
@@ -77,7 +100,6 @@ export const WITHDRAW_REASONS = [
   "Verified emergency",
 ];
 
-/* Registered hospitals/clinics a user can search and pay directly */
 export const HOSPITALS = [
   { id: 1, name: "Mulago National Referral Hospital", location: "Kampala", category: "Public", verified: true },
   { id: 2, name: "Nsambya Hospital", location: "Kampala", category: "Private", verified: true },
